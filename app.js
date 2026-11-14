@@ -319,7 +319,10 @@ async function generateResponse(conversation, userMessage) {
       method: "POST",
       headers: {
         apikey: SUPABASE_PUBLISHABLE_KEY,
-        Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+        headers: {
+  apikey: SUPABASE_PUBLISHABLE_KEY,
+  "Content-Type": "application/json"
+},
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
