@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="./blinkel_logo.png">
   <link rel="apple-touch-icon" href="./blinkel_logo.png">
   <link rel="preload" as="image" href="./blinkel_logo.png">
-  <link rel="stylesheet" href="./style.css?v=2">
+  <link rel="stylesheet" href="./style.css?v=3">
 </head>
 <body>
   <div class="app-shell" id="appShell">
@@ -47,6 +47,10 @@
       </section>
 
       <footer class="sidebar-footer">
+        <button class="sidebar-action-button settings-button" id="settingsButton" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3A1.7 1.7 0 0 0 14 21v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14h-.2v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3v-.2h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9A1.7 1.7 0 0 0 21 10h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"></path></svg>
+          <span>Settings & data</span>
+        </button>
         <button class="account-button" id="accountButton" type="button">
           <span class="account-avatar" id="accountAvatar">G</span>
           <span class="account-details"><strong id="accountName">Guest</strong><span id="accountPlan">Local prototype</span></span>
@@ -80,6 +84,16 @@
           <button class="sign-in-button" id="signInButton" type="button">Sign in</button>
         </div>
       </header>
+
+      <nav class="focus-bar" aria-label="Response mode">
+        <button class="focus-chip active" type="button" data-focus="quick">Quick</button>
+        <button class="focus-chip" type="button" data-focus="think">Think</button>
+        <button class="focus-chip" type="button" data-focus="study">Study</button>
+        <button class="focus-chip" type="button" data-focus="create">Create</button>
+        <button class="focus-chip" type="button" data-focus="research">Research</button>
+        <button class="focus-chip" type="button" data-focus="code">Code</button>
+        <span class="focus-description" id="focusDescription">Fast, concise answers</span>
+      </nav>
 
       <section class="chat-view" id="chatView">
         <div class="welcome-view" id="welcomeView">
@@ -117,6 +131,15 @@
       <section class="composer-section">
         <div class="composer-container">
           <div class="attachment-preview-list" id="attachmentPreviewList" hidden></div>
+          <div class="command-menu" id="commandMenu" hidden>
+            <p>Commands</p>
+            <button type="button" data-command="/search "><strong>/search</strong><span>Research with live sources</span></button>
+            <button type="button" data-command="/study "><strong>/study</strong><span>Learn step by step</span></button>
+            <button type="button" data-command="/rewrite "><strong>/rewrite</strong><span>Improve existing writing</span></button>
+            <button type="button" data-command="/summarize "><strong>/summarize</strong><span>Condense long information</span></button>
+            <button type="button" data-command="/compare "><strong>/compare</strong><span>Compare options clearly</span></button>
+            <button type="button" data-command="/code "><strong>/code</strong><span>Build or debug code</span></button>
+          </div>
           <form class="composer-form" id="composerForm">
             <div class="composer-input-wrapper">
               <textarea id="messageInput" rows="1" maxlength="12000" placeholder="Ask Blinkel anything" aria-label="Message Blinkel"></textarea>
@@ -189,6 +212,18 @@
     <div class="modal-content notice-content"><div class="notice-icon danger">!</div><p class="modal-eyebrow">DELETE CHAT</p><h2>Delete this conversation?</h2><p>This removes the conversation from this browser and cannot be undone.</p><div class="modal-actions"><button class="secondary-button" data-close="deleteModal" type="button">Cancel</button><button class="danger-button" id="confirmDeleteButton" type="button">Delete</button></div></div>
   </dialog>
 
-  <script src="./app.js?v=2"></script>
+  <dialog class="modal settings-modal" id="settingsModal">
+    <div class="modal-content">
+      <header class="modal-header"><div><p class="modal-eyebrow">SETTINGS</p><h2>Personalize Blinkel</h2><p>Control appearance, behavior, and local data.</p></div><button class="icon-button" data-close="settingsModal" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg></button></header>
+      <div class="settings-list">
+        <label class="setting-row"><span><strong>Compact responses</strong><small>Prefer shorter prototype replies</small></span><input id="compactResponsesToggle" type="checkbox"></label>
+        <label class="setting-row"><span><strong>Reduce motion</strong><small>Disable most interface animation</small></span><input id="reduceMotionToggle" type="checkbox"></label>
+        <div class="setting-action-row"><span><strong>Export conversations</strong><small>Download local chats as JSON</small></span><button id="exportDataButton" type="button">Export</button></div>
+        <div class="setting-action-row danger-setting"><span><strong>Clear local data</strong><small>Delete every saved conversation</small></span><button id="clearDataButton" type="button">Clear</button></div>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="./app.js?v=3"></script>
 </body>
 </html>
