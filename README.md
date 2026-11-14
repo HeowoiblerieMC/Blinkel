@@ -212,54 +212,6 @@ blinkel_temporary_mode_v1
 
 Cloud storage and account synchronization will be added in a later development phase.
 
----
-
-## 🏗️ Planned Architecture
-
-Blinkel's production architecture will separate the public frontend from private AI and database services.
-
-```text
-┌─────────────────────────────┐
-│      Blinkel Frontend       │
-│                             │
-│  Chat • Files • Settings    │
-└──────────────┬──────────────┘
-               │
-               │ Secure HTTPS requests
-               ▼
-┌─────────────────────────────┐
-│       Blinkel Backend       │
-│                             │
-│  Authentication            │
-│  Rate limits               │
-│  Safety controls           │
-│  Conversation management   │
-│  Tool orchestration        │
-└──────────────┬──────────────┘
-               │
-               │ Protected API requests
-               ▼
-┌─────────────────────────────┐
-│        AI Services          │
-│                             │
-│  Language models           │
-│  Search                    │
-│  Vision                    │
-│  Image generation          │
-└──────────────┬──────────────┘
-               │
-               ▼
-┌─────────────────────────────┐
-│     Database and Storage    │
-│                             │
-│  Users • Chats • Files      │
-└─────────────────────────────┘
-```
-
-This architecture ensures that private API keys and administrative credentials are never exposed to the browser.
-
----
-
 ## 🗺️ Roadmap
 
 ### Phase 1: Foundation
