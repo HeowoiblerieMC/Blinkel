@@ -320,8 +320,7 @@ async function generateResponse(conversation, userMessage) {
       headers: {
         apikey: SUPABASE_PUBLISHABLE_KEY,
         headers: {
-  apikey: SUPABASE_PUBLISHABLE_KEY,
-  "Content-Type": "application/json"
+  "Content-Type": "text/plain;charset=UTF-8"
 },
         "Content-Type": "application/json"
       },
