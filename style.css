@@ -152,3 +152,23 @@ svg { width: 20px; height: 20px; flex: 0 0 auto; fill: none; stroke: currentColo
 .message-action-label { width:auto; padding:0 10px; font-size:8px; font-weight:800; }
 body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after { scroll-behavior:auto!important; animation:none!important; transition:none!important; }
 @media(max-width:640px){.focus-bar{padding:6px 9px}.focus-description{display:none}.command-menu span{display:none}.command-menu button{justify-content:flex-start}}
+
+
+/* Blinkel 0.4 Canvas and workspace layer */
+.project-switcher { padding:0 12px 10px; }
+.project-switcher label { display:block; margin:0 3px 6px; color:var(--muted); font-size:8px; font-weight:900; letter-spacing:.12em; text-transform:uppercase; }
+.project-switcher select { width:100%; height:40px; padding:0 11px; border:1px solid var(--border); border-radius:12px; background:#0a0e16; color:var(--muted-light); font-size:10px; font-weight:750; }
+.workspace-button { display:flex; min-height:39px; align-items:center; gap:7px; padding:0 12px; border:1px solid rgba(116,87,255,.34); border-radius:12px; background:rgba(116,87,255,.1); color:#b7a9ff; font-size:10px; font-weight:850; cursor:pointer; }
+.workspace-button:hover { background:rgba(116,87,255,.18); color:#fff; }
+.workspace-panel { position:fixed; z-index:70; top:0; right:0; bottom:0; display:grid; width:min(620px,96vw); grid-template-rows:auto auto minmax(0,1fr) auto; border:0; border-left:1px solid var(--border-light); background:#090d15; color:var(--text); box-shadow:-35px 0 100px rgba(0,0,0,.55); }
+.workspace-header { display:flex; min-height:76px; align-items:center; justify-content:space-between; gap:16px; padding:14px 18px; border-bottom:1px solid var(--border); }
+.workspace-header p,.workspace-header h2 { margin:0; }.workspace-header p { color:var(--purple); font-size:8px; font-weight:900; letter-spacing:.16em; }.workspace-header h2 { margin-top:5px; font-size:17px; }
+.workspace-header-actions { display:flex; gap:4px; }
+.workspace-toolbar { display:flex; gap:6px; padding:10px 14px; overflow-x:auto; border-bottom:1px solid var(--border); }
+.workspace-toolbar button { min-height:35px; padding:0 11px; border:1px solid var(--border); border-radius:10px; background:var(--surface); color:var(--muted-light); font-size:9px; font-weight:800; cursor:pointer; white-space:nowrap; }
+.workspace-toolbar button:hover { border-color:var(--border-light); background:var(--surface-light); color:#fff; }
+.workspace-panel textarea { width:100%; min-height:0; resize:none; padding:25px clamp(18px,5vw,46px); border:0; outline:0; background:transparent; color:#e6eaf1; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:14px; line-height:1.75; }
+.workspace-footer { display:flex; justify-content:space-between; gap:12px; padding:10px 16px calc(10px + var(--safe-bottom)); border-top:1px solid var(--border); color:#697587; font-size:8px; }
+body.workspace-open::after { position:fixed; z-index:65; inset:0; background:rgba(0,0,0,.5); content:""; }
+.add-canvas-button { width:auto; padding:0 10px; color:#b7a9ff; font-size:8px; font-weight:850; }
+@media(max-width:640px){.workspace-button span{display:none}.workspace-button{width:38px;padding:0;justify-content:center}.workspace-panel{width:100vw}.project-switcher{padding-bottom:8px}}
