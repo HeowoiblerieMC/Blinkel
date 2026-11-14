@@ -1,5 +1,10 @@
 "use strict";
 
+const SUPABASE_URL = "https://ebmloajzuvmeykumycjb.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY =
+  "sb_publishable_SlXcIgKDVwOgCcHyOoRemA_VeRC7SpY";
+const CHAT_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/chat`;
+
 const STORAGE_KEYS = {
   conversations: "blinkel_conversations_v2",
   activeConversation: "blinkel_active_conversation_v2"
@@ -18,6 +23,7 @@ const state = {
   attachedFiles: [],
   generating: false,
   generationTimer: null,
+  generationAbortController: null,
   temporaryMode: false,
   webSearchEnabled: false,
   historyCollapsed: false,
@@ -278,31 +284,111 @@ function submitMessage(event) {
   generateResponse(conversation, userMessage);
 }
 
-function generateResponse(conversation, userMessage) {
+async function generateResponse(conversation, userMessage) {
   state.generating = true;
-  const assistant = { id: id("message"), role: "assistant", content: "", createdAt: now(), status: "generating" };
+  state.generationAbortController = new AbortController();
+
+  const assistant = {
+    id: id("message"),
+    role: "assistant",
+    content: "",
+    createdAt: now(),
+    status: "generating"
+  };
+
   conversation.messages.push(assistant);
+  conversation.updatedAt = now();
+  saveState();
   render();
-  state.generationTimer = window.setTimeout(() => {
+
+  const messages = conversation.messages
+    .filter((message) =>
+      message.id !== assistant.id &&
+      ["user", "assistant"].includes(message.role) &&
+      typeof message.content === "string" &&
+      message.content.trim()
+    )
+    .slice(-20)
+    .map((message) => ({
+      role: message.role,
+      content: message.content
+    }));
+
+  try {
+    const response = await fetch(CHAT_FUNCTION_URL, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_PUBLISHABLE_KEY,
+        Authorization: `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        messages,
+        focusMode: state.focusMode || "quick",
+        webSearch: state.webSearchEnabled === true
+      }),
+      signal: state.generationAbortController.signal
+    });
+
+    let data;
+
+    try {
+      data = await response.json();
+    } catch {
+      throw new Error("Blinkel received an invalid server response.");
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        typeof data.error === "string"
+          ? data.error
+          : "Blinkel could not generate a response."
+      );
+    }
+
+    if (typeof data.response !== "string" || !data.response.trim()) {
+      throw new Error("Blinkel received an empty AI response.");
+    }
+
+    assistant.content = data.response.trim();
     assistant.status = "complete";
-    assistant.content = `Blinkel's improved interface is ready. The secure AI backend is the next step before real answers can be generated.${state.webSearchEnabled ? " Web search is selected, but it is not connected yet." : ""}${userMessage.attachments?.length ? ` ${userMessage.attachments.length} attachment${userMessage.attachments.length === 1 ? " was" : "s were"} selected, but file analysis is not connected yet.` : ""}`;
+    assistant.metadata = {
+      model: data.model || "Blinkel Core",
+      providerModel: data.providerModel || null,
+      focusMode: data.focusMode || state.focusMode || "quick",
+      webSearchUsed: data.webSearchUsed === true
+    };
+  } catch (error) {
+    if (error.name === "AbortError") {
+      assistant.content = "Generation stopped.";
+      assistant.status = "stopped";
+    } else {
+      console.error("Blinkel response error:", error);
+      assistant.content =
+        error instanceof Error
+          ? `Blinkel error: ${error.message}`
+          : "Blinkel could not generate a response.";
+      assistant.status = "error";
+    }
+  } finally {
     conversation.updatedAt = now();
     state.generating = false;
-    state.generationTimer = null;
+    state.generationAbortController = null;
     saveState();
     render();
-  }, 900);
+  }
 }
 
 function stopGeneration() {
-  if (state.generationTimer) window.clearTimeout(state.generationTimer);
-  state.generationTimer = null;
-  const pending = activeConversation()?.messages.find((item) => item.status === "generating");
-  if (pending) { pending.status = "complete"; pending.content = "Generation stopped."; }
+  if (state.generationAbortController) {
+    state.generationAbortController.abort();
+    return;
+  }
+
   state.generating = false;
-  saveState();
-  render();
+  updateComposer();
 }
+
 
 function openDialog(dialog) { if (!dialog.open) dialog.showModal(); }
 function closeDialog(dialog) { if (dialog?.open) dialog.close(); }
@@ -469,14 +555,6 @@ renderApplication = function renderApplicationWithInnovation() {
   originalRenderApplication();
   renderInnovationSettings();
   updateCommandMenu();
-};
-
-const originalCreatePrototypeResponse = createPrototypeResponse;
-createPrototypeResponse = function createFocusedPrototypeResponse(userMessage) {
-  const base = originalCreatePrototypeResponse(userMessage);
-  const mode = FOCUS_MODES[state.focusMode] || FOCUS_MODES.quick;
-  const compact = state.compactResponses ? " Compact response preference is enabled." : "";
-  return `${base}\n\nActive mode: ${state.focusMode.toUpperCase()} â ${mode}.${compact}`;
 };
 
 function addInnovationEvents() {
