@@ -387,3 +387,154 @@ function initialize() {
 }
 
 initialize();
+
+
+// Blinkel 0.3 innovation layer
+const FOCUS_MODES = {
+  quick: "Fast, concise answers",
+  think: "Deeper reasoning for complex problems",
+  study: "Step-by-step teaching and practice",
+  create: "Original writing and idea development",
+  research: "Source-aware research workflow",
+  code: "Programming, debugging, and technical work"
+};
+
+state.focusMode = localStorage.getItem("blinkel_focus_mode_v1") || "quick";
+state.compactResponses = localStorage.getItem("blinkel_compact_responses_v1") === "true";
+state.reduceMotion = localStorage.getItem("blinkel_reduce_motion_v1") === "true";
+
+function renderInnovationSettings() {
+  document.querySelectorAll(".focus-chip").forEach((button) => {
+    button.classList.toggle("active", button.dataset.focus === state.focusMode);
+  });
+
+  const description = document.getElementById("focusDescription");
+  if (description) {
+    description.textContent = FOCUS_MODES[state.focusMode] || FOCUS_MODES.quick;
+  }
+
+  const compactToggle = document.getElementById("compactResponsesToggle");
+  const motionToggle = document.getElementById("reduceMotionToggle");
+
+  if (compactToggle) compactToggle.checked = state.compactResponses;
+  if (motionToggle) motionToggle.checked = state.reduceMotion;
+
+  document.body.classList.toggle("reduce-motion", state.reduceMotion);
+}
+
+function updateCommandMenu() {
+  const commandMenu = document.getElementById("commandMenu");
+  if (!commandMenu) return;
+
+  const value = elements.messageInput.value.trimStart();
+  commandMenu.hidden = !(value === "/" || /^\/[a-z]*$/i.test(value));
+}
+
+function exportConversationData() {
+  const data = {
+    product: "Blinkel",
+    version: "0.3",
+    exportedAt: new Date().toISOString(),
+    conversations: state.conversations.filter((conversation) => !conversation.temporary)
+  };
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `blinkel-export-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
+function clearAllBlinkelData() {
+  const confirmed = window.confirm("Delete every locally saved Blinkel conversation?");
+  if (!confirmed) return;
+
+  stopGeneration();
+  state.conversations = [];
+  state.activeConversationId = null;
+  state.attachedFiles = [];
+  localStorage.removeItem(STORAGE_KEYS.conversations);
+  localStorage.removeItem(STORAGE_KEYS.activeConversation);
+  closeDialog(document.getElementById("settingsModal"));
+  renderApplication();
+  openNotice("Local data cleared", "All conversations saved in this browser were removed.", "â");
+}
+
+const originalRenderApplication = renderApplication;
+renderApplication = function renderApplicationWithInnovation() {
+  originalRenderApplication();
+  renderInnovationSettings();
+  updateCommandMenu();
+};
+
+const originalCreatePrototypeResponse = createPrototypeResponse;
+createPrototypeResponse = function createFocusedPrototypeResponse(userMessage) {
+  const base = originalCreatePrototypeResponse(userMessage);
+  const mode = FOCUS_MODES[state.focusMode] || FOCUS_MODES.quick;
+  const compact = state.compactResponses ? " Compact response preference is enabled." : "";
+  return `${base}\n\nActive mode: ${state.focusMode.toUpperCase()} â ${mode}.${compact}`;
+};
+
+function addInnovationEvents() {
+  document.querySelectorAll(".focus-chip").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.focusMode = button.dataset.focus;
+      localStorage.setItem("blinkel_focus_mode_v1", state.focusMode);
+      renderInnovationSettings();
+    });
+  });
+
+  const settingsButton = document.getElementById("settingsButton");
+  const settingsModal = document.getElementById("settingsModal");
+  if (settingsButton && settingsModal) {
+    settingsButton.addEventListener("click", () => openDialog(settingsModal));
+  }
+
+  elements.messageInput.addEventListener("input", updateCommandMenu);
+  document.querySelectorAll("[data-command]").forEach((button) => {
+    button.addEventListener("click", () => {
+      elements.messageInput.value = button.dataset.command;
+      document.getElementById("commandMenu").hidden = true;
+      updateComposer();
+      elements.messageInput.focus();
+    });
+  });
+
+  document.getElementById("compactResponsesToggle")?.addEventListener("change", (event) => {
+    state.compactResponses = event.target.checked;
+    localStorage.setItem("blinkel_compact_responses_v1", String(state.compactResponses));
+  });
+
+  document.getElementById("reduceMotionToggle")?.addEventListener("change", (event) => {
+    state.reduceMotion = event.target.checked;
+    localStorage.setItem("blinkel_reduce_motion_v1", String(state.reduceMotion));
+    renderInnovationSettings();
+  });
+
+  document.getElementById("exportDataButton")?.addEventListener("click", exportConversationData);
+  document.getElementById("clearDataButton")?.addEventListener("click", clearAllBlinkelData);
+
+  window.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      openSearchModal();
+    }
+
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === "o") {
+      event.preventDefault();
+      startNewChat();
+    }
+
+    if (event.key === "Escape") {
+      const commandMenu = document.getElementById("commandMenu");
+      if (commandMenu) commandMenu.hidden = true;
+    }
+  });
+}
+
+addInnovationEvents();
+renderInnovationSettings();
