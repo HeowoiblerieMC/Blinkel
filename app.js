@@ -538,3 +538,120 @@ function addInnovationEvents() {
 
 addInnovationEvents();
 renderInnovationSettings();
+
+
+// Blinkel 0.4 Canvas and project workspaces
+const WORKSPACE_STORAGE_KEY = "blinkel_canvas_v1";
+const PROJECT_STORAGE_KEY = "blinkel_project_v1";
+state.project = localStorage.getItem(PROJECT_STORAGE_KEY) || "personal";
+state.workspaceText = localStorage.getItem(WORKSPACE_STORAGE_KEY) || "";
+
+function openWorkspace() {
+  const panel = document.getElementById("workspacePanel");
+  panel.hidden = false;
+  document.body.classList.add("workspace-open");
+  updateWorkspace();
+  requestAnimationFrame(() => document.getElementById("workspaceEditor").focus());
+}
+
+function closeWorkspace() {
+  document.getElementById("workspacePanel").hidden = true;
+  document.body.classList.remove("workspace-open");
+}
+
+function updateWorkspace() {
+  const editor = document.getElementById("workspaceEditor");
+  const count = document.getElementById("workspaceCount");
+  const status = document.getElementById("workspaceStatus");
+  const title = document.getElementById("workspaceTitle");
+  if (!editor) return;
+  if (editor.value !== state.workspaceText) editor.value = state.workspaceText;
+  count.textContent = `${state.workspaceText.length} characters`;
+  status.textContent = "Saved locally";
+  title.textContent = `${state.project.charAt(0).toUpperCase()}${state.project.slice(1)} canvas`;
+}
+
+function saveWorkspace(value) {
+  state.workspaceText = value;
+  localStorage.setItem(WORKSPACE_STORAGE_KEY, value);
+  updateWorkspace();
+}
+
+function addToWorkspace(text) {
+  const cleaned = String(text || "").trim();
+  if (!cleaned) return;
+  const separator = state.workspaceText.trim() ? "\n\n---\n\n" : "";
+  saveWorkspace(`${state.workspaceText}${separator}${cleaned}`);
+  openWorkspace();
+}
+
+function downloadWorkspace() {
+  const blob = new Blob([state.workspaceText], { type: "text/markdown" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = `blinkel-${state.project}-canvas.md`;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  URL.revokeObjectURL(url);
+}
+
+const originalCreateMessageElementV4 = createMessageElement;
+createMessageElement = function createMessageElementWithCanvas(message) {
+  const article = originalCreateMessageElementV4(message);
+  if (message.role === "assistant" && message.status !== "generating") {
+    const actions = article.querySelector(".message-actions");
+    if (actions) {
+      const canvasButton = document.createElement("button");
+      canvasButton.className = "message-action-button add-canvas-button";
+      canvasButton.type = "button";
+      canvasButton.textContent = "Add to Canvas";
+      canvasButton.addEventListener("click", () => addToWorkspace(message.content));
+      actions.appendChild(canvasButton);
+    }
+  }
+  return article;
+};
+
+function setupWorkspaceEvents() {
+  const projectSelect = document.getElementById("projectSelect");
+  projectSelect.value = state.project;
+  projectSelect.addEventListener("change", () => {
+    state.project = projectSelect.value;
+    localStorage.setItem(PROJECT_STORAGE_KEY, state.project);
+    updateWorkspace();
+  });
+
+  document.getElementById("openWorkspaceButton").addEventListener("click", openWorkspace);
+  document.getElementById("closeWorkspaceButton").addEventListener("click", closeWorkspace);
+  document.getElementById("downloadWorkspaceButton").addEventListener("click", downloadWorkspace);
+  document.getElementById("workspaceEditor").addEventListener("input", (event) => saveWorkspace(event.target.value));
+  document.getElementById("clearWorkspaceButton").addEventListener("click", () => {
+    if (window.confirm("Clear the entire Blinkel Canvas?")) saveWorkspace("");
+  });
+
+  document.querySelectorAll("[data-workspace-action]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const editor = document.getElementById("workspaceEditor");
+      const additions = { heading: "\n## Heading\n", bullet: "\n- Item\n", divider: "\n---\n" };
+      const addition = additions[button.dataset.workspaceAction] || "";
+      const start = editor.selectionStart;
+      const next = `${editor.value.slice(0, start)}${addition}${editor.value.slice(editor.selectionEnd)}`;
+      saveWorkspace(next);
+      editor.focus();
+      editor.selectionStart = editor.selectionEnd = start + addition.length;
+    });
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === "c") {
+      event.preventDefault();
+      openWorkspace();
+    }
+    if (event.key === "Escape" && !document.getElementById("workspacePanel").hidden) closeWorkspace();
+  });
+}
+
+setupWorkspaceEvents();
+updateWorkspace();
