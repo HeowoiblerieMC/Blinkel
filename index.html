@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="./blinkel_logo.png">
   <link rel="apple-touch-icon" href="./blinkel_logo.png">
   <link rel="preload" as="image" href="./blinkel_logo.png">
-  <link rel="stylesheet" href="./style.css?v=3">
+  <link rel="stylesheet" href="./style.css?v=4">
 </head>
 <body>
   <div class="app-shell" id="appShell">
@@ -24,6 +24,16 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
         </button>
       </header>
+
+      <div class="project-switcher">
+        <label for="projectSelect">Workspace</label>
+        <select id="projectSelect" aria-label="Select workspace">
+          <option value="personal">Personal</option>
+          <option value="study">Study</option>
+          <option value="build">Build</option>
+          <option value="research">Research</option>
+        </select>
+      </div>
 
       <div class="sidebar-actions">
         <button class="new-chat-button" id="newChatButton" type="button">
@@ -76,6 +86,10 @@
         <div class="top-bar-actions">
           <button class="icon-button" id="temporaryChatButton" type="button" aria-label="Toggle temporary chat" aria-pressed="false" title="Temporary chat">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9"></path><path d="M12 7v5l3 2"></path></svg>
+          </button>
+          <button class="workspace-button" id="openWorkspaceButton" type="button" aria-label="Open workspace" title="Open workspace">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4z"></path><path d="M9 4v16"></path></svg>
+            <span>Canvas</span>
           </button>
           <button class="share-button" id="shareChatButton" type="button" hidden>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"></path><path d="M5 13v6h14v-6"></path></svg>
@@ -212,6 +226,24 @@
     <div class="modal-content notice-content"><div class="notice-icon danger">!</div><p class="modal-eyebrow">DELETE CHAT</p><h2>Delete this conversation?</h2><p>This removes the conversation from this browser and cannot be undone.</p><div class="modal-actions"><button class="secondary-button" data-close="deleteModal" type="button">Cancel</button><button class="danger-button" id="confirmDeleteButton" type="button">Delete</button></div></div>
   </dialog>
 
+  <aside class="workspace-panel" id="workspacePanel" hidden aria-label="Blinkel Canvas">
+    <header class="workspace-header">
+      <div><p>BLINKEL CANVAS</p><h2 id="workspaceTitle">Untitled canvas</h2></div>
+      <div class="workspace-header-actions">
+        <button class="icon-button" id="downloadWorkspaceButton" type="button" aria-label="Download canvas" title="Download canvas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5"></path><path d="M5 19h14"></path></svg></button>
+        <button class="icon-button" id="closeWorkspaceButton" type="button" aria-label="Close canvas"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg></button>
+      </div>
+    </header>
+    <div class="workspace-toolbar">
+      <button type="button" data-workspace-action="heading">Heading</button>
+      <button type="button" data-workspace-action="bullet">Bullet</button>
+      <button type="button" data-workspace-action="divider">Divider</button>
+      <button type="button" id="clearWorkspaceButton">Clear</button>
+    </div>
+    <textarea id="workspaceEditor" spellcheck="true" placeholder="Add an AI response to Canvas, or start writing here..."></textarea>
+    <footer class="workspace-footer"><span id="workspaceStatus">Saved locally</span><span id="workspaceCount">0 characters</span></footer>
+  </aside>
+
   <dialog class="modal settings-modal" id="settingsModal">
     <div class="modal-content">
       <header class="modal-header"><div><p class="modal-eyebrow">SETTINGS</p><h2>Personalize Blinkel</h2><p>Control appearance, behavior, and local data.</p></div><button class="icon-button" data-close="settingsModal" type="button" aria-label="Close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg></button></header>
@@ -224,6 +256,6 @@
     </div>
   </dialog>
 
-  <script src="./app.js?v=3"></script>
+  <script src="./app.js?v=4"></script>
 </body>
 </html>
