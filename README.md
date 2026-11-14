@@ -211,13 +211,3 @@ blinkel_temporary_mode_v1
 - Accounts are currently visual prototypes and are not connected to a backend.
 
 Cloud storage and account synchronization will be added in a later development phase.
-
-## 🗺️ Roadmap
-
-### Phase 1: Foundation
-
-- [x] Establish the Blinkel brand
-- [x] Create the official Blinkel logo
-- [x] Build the responsive chat interface
-- [x] Add desktop and mobile navigation
-- [x] Add local 
