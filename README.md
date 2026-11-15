@@ -12,7 +12,7 @@ A modern, independent AI assistant built to help people
 <br>
 
 ![Status](https://img.shields.io/badge/status-early%20development-20d9ec?style=for-the-badge)
-![Version](https://img.shields.io/badge/version-0.1.0-3889ff?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-0.1.3-3889ff?style=for-the-badge)
 ![Frontend](https://img.shields.io/badge/frontend-HTML%20%7C%20CSS%20%7C%20JavaScript-7457ff?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/platform-web-42d39b?style=for-the-badge)
 
